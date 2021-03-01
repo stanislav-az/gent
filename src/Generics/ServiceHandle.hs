@@ -30,44 +30,34 @@ mockServiceHandle =
                 Test.Action
                   "whatsMyName"
                   [Test.TestableItem d, Test.TestableItem c]
+                  Nothing
           Test.addAction action
           pure "Mr. White"
     , setCurrentCounter =
         \i -> do
-          let action = Test.Action "setCurrentCounter" [Test.TestableItem i]
+          let action = Test.Action "setCurrentCounter" [Test.TestableItem i] Nothing
           Test.addAction action
           pure ()
     , fork =
         \ma -> do
           let (_, forkedActions) = Test.runTest ma
           let action =
-                Test.Action "forkActions" $
-                map Test.TestableItem $ reverse forkedActions
+                Test.Action "fork" []
+                (Just forkedActions)
           Test.addAction action
           pure ()
     , function = listToMaybe
     , constant = "asdf"
     , withDependency =
         \i _f -> do
-          let action = Test.Action "withDependency" [Test.TestableItem i]
+          let action = Test.Action "withDependency" [Test.TestableItem i] Nothing
           Test.addAction action
           pure ()
     , withCallback =
         \i cb -> do
-          let action = Test.Action "withCallback" [Test.TestableItem i]
+          let ma = cb "mock"
+          let (res, callbackActions) = Test.runTest ma
+          let action = Test.Action "withCallback" [Test.TestableItem i] (Just callbackActions)
           Test.addAction action
-          callback cb "mock"
           pure ()
     }
-  where
-    callback :: (T.Text -> Test.TestT Char) -> T.Text -> Test.TestT Char
-    callback cb t = do
-      let ma = cb t
-      let (res, callbackActions) = Test.runTest ma
-      let action1 = Test.Action "callback" [Test.TestableItem t]
-      let action2 =
-            Test.Action "callbackActions" $
-            map Test.TestableItem $ reverse callbackActions
-      Test.addAction action1
-      Test.addAction action2
-      pure res

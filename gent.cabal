@@ -4,7 +4,7 @@ cabal-version: 1.12
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: cc49493d096dc4c4d67b7d48e02b7bdf385969889aa571901f9687314a6bd297
+-- hash: 11ed1eda635edfd7ad2adc2385e48128ec295de2282551a9f96d10c91267197a
 
 name:           gent
 version:        0.1.0.0
@@ -40,6 +40,7 @@ library
   default-extensions: RecordWildCards OverloadedStrings
   build-depends:
       base >=4.7 && <5
+    , containers
     , exceptions
     , mtl
     , text
@@ -55,6 +56,7 @@ executable gent-exe
   ghc-options: -threaded -rtsopts -with-rtsopts=-N
   build-depends:
       base >=4.7 && <5
+    , containers
     , exceptions
     , gent
     , mtl
@@ -72,6 +74,7 @@ test-suite gent-test
   ghc-options: -threaded -rtsopts -with-rtsopts=-N
   build-depends:
       base >=4.7 && <5
+    , containers
     , exceptions
     , gent
     , mtl

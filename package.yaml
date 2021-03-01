@@ -24,6 +24,7 @@ dependencies:
 - exceptions
 - mtl
 - text
+- containers
 
 default-extensions:
 - RecordWildCards
