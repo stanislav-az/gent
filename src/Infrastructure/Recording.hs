@@ -7,8 +7,11 @@ import Control.Monad.State (modify)
 addAction :: An.Action -> Test.TestT ()
 addAction a = modify (a:)
 
+addActions :: [An.Action] -> Test.TestT ()
+addActions acs = modify (acs ++)
+
 getResult :: (a, [An.Action]) -> a
 getResult = fst
 
 getActions :: (a, [An.Action]) -> [An.Action]
-getActions = reverse . snd 
+getActions = reverse . snd
