@@ -30,7 +30,8 @@ mockServiceHandle =
           Test.addAction
             "whatsMyName"
             [Test.TestableItem d, Test.TestableItem c]
-          pure "Mr. White"
+          Test.initMockDataFor "whatsMyName" ["Mr. White" :: T.Text, "White"]
+          Test.returnFor "whatsMyName"
     , setCurrentCounter =
         \i -> do
           Test.addAction "setCurrentCounter" [Test.TestableItem i]
