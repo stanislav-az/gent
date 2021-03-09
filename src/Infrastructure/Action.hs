@@ -56,6 +56,9 @@ data TestableItem =
 
 deriving instance Show TestableItem
 
+ti :: Testable a => a -> TestableItem
+ti = TestableItem
+
 instance Eq TestableItem where
   (TestableItem (x :: a)) == (TestableItem (y :: b))
     | Just Type.Refl <- Type.eqT @a @b = x == y
