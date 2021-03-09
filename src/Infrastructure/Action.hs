@@ -17,6 +17,15 @@ data TestState = TestState
   , mockData :: Map.Map T.Text [Sample.Sample]
   }
 
+emptyTestState :: TestState
+emptyTestState = TestState [] Map.empty
+
+packAction :: T.Text -> [TestableItem] -> Either Callback Action
+packAction actionName actionArgs = Right Action {..}
+
+packCallback :: T.Text -> [TestableItem] -> [Action] -> Either Callback Action
+packCallback actionName actionArgs callbackActions = Left $ makeCallback actionName actionArgs callbackActions
+
 flattenTestState :: TestState -> [Action]
 flattenTestState TestState {..} = foldr getActions [] testState
   where

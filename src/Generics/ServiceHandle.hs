@@ -26,38 +26,28 @@ mockServiceHandle =
   ServiceHandle
     { whatsMyName =
         \d c -> do
-          let action =
-                Test.Action
-                  "whatsMyName"
+          Test.addAction "whatsMyName"
                   [Test.TestableItem d, Test.TestableItem c]
-                  Nothing
-          Test.addAction action
           pure "Mr. White"
     , setCurrentCounter =
         \i -> do
-          let action = Test.Action "setCurrentCounter" [Test.TestableItem i] Nothing
-          Test.addAction action
+          Test.addAction "setCurrentCounter" [Test.TestableItem i]
           pure ()
     , fork =
         \ma -> do
-          let (_, forkedActions) = Test.runTest ma
-          let action =
-                Test.Action "fork" []
-                (Just forkedActions)
-          Test.addAction action
+          let forkedActions = Test.getOnlyActions $ Test.runTest ma
+          Test.addCallback "fork" [] forkedActions
           pure ()
     , function = listToMaybe
     , constant = "asdf"
     , withDependency =
         \i _f -> do
-          let action = Test.Action "withDependency" [Test.TestableItem i] Nothing
-          Test.addAction action
+          Test.addAction "withDependency" [Test.TestableItem i]
           pure ()
     , withCallback =
         \i cb -> do
           let ma = cb "mock"
-          let (res, callbackActions) = Test.runTest ma
-          let action = Test.Action "withCallback" [Test.TestableItem i] (Just callbackActions)
-          Test.addAction action
+          let callbackActions = Test.getOnlyActions $ Test.runTest ma
+          Test.addCallback "withCallback" [Test.TestableItem i] callbackActions
           pure ()
     }

@@ -15,11 +15,11 @@ import qualified Infrastructure.Action as An
 -- the most used case would be Test a = TestT Catch a
 -- нужно делать все инстансы mtl: HasInstance m => instance HasInstance (TestT m)
 newtype TestT a = TestT
-  { runTestT :: StateT [An.Action] Catch a
+  { runTestT :: StateT An.TestState Catch a
   } deriving ( Functor
              , Applicative
              , Monad
-             , MonadState [An.Action]
+             , MonadState An.TestState
              , MonadThrow
              , MonadCatch
              , MonadMask
@@ -28,10 +28,10 @@ newtype TestT a = TestT
              , MonadPlus
              )
 
-runTestSafe :: TestT a -> Either SomeException (a, [An.Action])
-runTestSafe = runIdentity . runCatchT . (`runStateT` []) . runTestT
+runTestSafe :: TestT a -> Either SomeException (a, An.TestState)
+runTestSafe = runIdentity . runCatchT . (`runStateT` An.emptyTestState) . runTestT
 
-runTest :: TestT a -> (a, [An.Action])
+runTest :: TestT a -> (a, An.TestState)
 runTest test =
   either (error . ("Uncaught exception during runTest: " <>) . show) id $
   runTestSafe test
