@@ -7,7 +7,7 @@
 
 module Infrastructure.Action where
 
-import qualified Data.Map as Map
+import qualified Data.Map.Strict as Map
 import qualified Data.Text as T
 import qualified Data.Typeable as Type
 import qualified Infrastructure.Sample as Sample
