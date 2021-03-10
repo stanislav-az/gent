@@ -10,10 +10,11 @@ module Infrastructure.Action where
 import qualified Data.Map.Strict as Map
 import qualified Data.Text as T
 import qualified Data.Typeable as Type
+import Ext.Data.Either
 import qualified Infrastructure.Sample as Sample
 
 data TestState = TestState
-  { testState :: [Either Callback Action]
+  { testState :: [SumOfThree ([Action] -> Callback) Action CallbackYeild]
   , mockData :: Map.Map T.Text [Sample.Sample]
   }
 
@@ -24,19 +25,27 @@ packAction :: T.Text -> [TestableItem] -> Either Callback Action
 packAction actionName actionArgs = Right Action {..}
 
 packCallback :: T.Text -> [TestableItem] -> [Action] -> Either Callback Action
-packCallback actionName actionArgs callbackActions = Left $ makeCallback actionName actionArgs callbackActions
+packCallback actionName actionArgs callbackActions =
+  Left $ makeCallback actionName actionArgs callbackActions
 
-flattenTestState :: TestState -> [Action]
-flattenTestState TestState {..} = foldr getActions [] testState
+volumeTestState :: TestState -> [Either Callback Action]
+volumeTestState TestState {..} = foldr getActions [] testState
   where
-    getActions :: Either Callback Action -> [Action] -> [Action]
-    getActions (Left Callback {..}) previous = callbackDescription : callbackActions <> previous
-    getActions (Right action) previous = action : previous
+  getActions :: SumOfThree ([Action] -> Callback) Action CallbackYeild -> [Either Callback Action] -> [Either Callback Action]
+  getActions (Lft mkCallback) = error "not implemented"
+    -- getActions :: Either Callback Action -> [Action] -> [Action]
+    -- getActions (Left Callback {..}) previous =
+    --   callbackDescription : callbackActions <> previous
+    -- getActions (Right action) previous = action : previous
 
 data Callback = Callback
   { callbackDescription :: Action
   , callbackActions :: [Action]
   } deriving (Show, Eq)
+
+data CallbackYeild =
+  CallbackYeild
+  deriving (Show, Eq)
 
 makeCallback :: T.Text -> [TestableItem] -> [Action] -> Callback
 makeCallback actionName actionArgs callbackActions = Callback {..}

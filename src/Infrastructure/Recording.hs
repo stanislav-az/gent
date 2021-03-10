@@ -9,6 +9,7 @@ import Data.Maybe (fromMaybe)
 import qualified Data.Text as T
 import Data.Typeable (Typeable)
 import Ext.Control.Monad (inaction)
+import Ext.Data.Either
 import qualified Infrastructure.Action as An
 import qualified Infrastructure.Sample as Sample
 import qualified Infrastructure.TestT as Test
@@ -17,28 +18,29 @@ import qualified Infrastructure.TestT as Test
 addAction :: T.Text -> [An.TestableItem] -> Test.TestT ()
 addAction actionName actionArgs = modify' add
   where
-    add An.TestState {..} =
-      An.TestState (An.packAction actionName actionArgs : testState) mockData
+    action = An.Action {..}
+    add An.TestState {..} = An.TestState (Mid action : testState) mockData
 
-addCallback :: T.Text -> [An.TestableItem] -> [An.Action] -> Test.TestT ()
-addCallback actionName actionArgs callbackActions = modify' add
+initCallback :: T.Text -> [An.TestableItem] -> Test.TestT ()
+initCallback actionName actionArgs = modify' add
+  where
+    callback = An.Callback An.Action {..}
+    add An.TestState {..} = An.TestState (Lft callback : testState) mockData
+
+yeildCallback :: Test.TestT ()
+yeildCallback = modify' add
   where
     add An.TestState {..} =
-      An.TestState
-        (An.packCallback actionName actionArgs callbackActions : testState)
-        mockData
+      An.TestState (Rgt An.CallbackYeild : testState) mockData
 
 getResult :: (a, An.TestState) -> a
 getResult = fst
 
 getActions :: (a, An.TestState) -> [Either An.Callback An.Action]
-getActions = An.testState . snd
+getActions = An.volumeTestState . snd
 
 getTimedActions :: (a, An.TestState) -> [Either An.Callback An.Action]
 getTimedActions = reverse . getActions
-
-getOnlyActions :: (a, An.TestState) -> [An.Action]
-getOnlyActions = An.flattenTestState . snd
 
 -- For mockData
 initMockDataFor :: Typeable a => T.Text -> [a] -> Test.TestT ()

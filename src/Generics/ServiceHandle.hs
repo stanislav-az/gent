@@ -35,12 +35,13 @@ mockServiceHandle =
     , setCurrentCounter =
         \i -> do
           Test.addAction "setCurrentCounter" [Test.TestableItem i]
-          Test.initMockDataFor "setCurrentCounter" $ replicate 1 ()
+          Test.initMockDataFor "setCurrentCounter" $ replicate 5 ()
           Test.returnFor "setCurrentCounter"
     , fork =
         \ma -> do
-          let forkedActions = Test.getOnlyActions $ Test.runTest ma
-          Test.addCallback "fork" [] forkedActions
+          Test.initCallback "fork" []
+          ma
+          Test.yeildCallback
           pure ()
     , function = listToMaybe
     , constant = "asdf"
@@ -51,8 +52,9 @@ mockServiceHandle =
     , withCallback =
         \i cb -> do
           let ma = cb "mock"
-          let callbackActions = Test.getOnlyActions $ Test.runTest ma
-          Test.addCallback "withCallback" [Test.TestableItem i] callbackActions
+          Test.initCallback "withCallback" [Test.TestableItem i]
+          ma
+          Test.yeildCallback
           pure ()
     }
 

@@ -4,7 +4,7 @@ cabal-version: 1.12
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: 4a3f9f81e81e484580572b3fa0f4dd2c7b7bb3b7baac0b30b862b5eda1e610ae
+-- hash: 814ed8b457abdab8ece2b6123aaa55b1d0a738fc80dbc4a05147ec517cc2fa43
 
 name:           gent
 version:        0.1.0.0
@@ -28,6 +28,7 @@ source-repository head
 library
   exposed-modules:
       Ext.Control.Monad
+      Ext.Data.Either
       Generics.ServiceHandle
       Infrastructure.Action
       Infrastructure.Recording
