@@ -40,7 +40,13 @@ getActions :: (a, An.TestState) -> [Either An.Callback An.Action]
 getActions = An.volumeTestState . snd
 
 getTimedActions :: (a, An.TestState) -> [Either An.Callback An.Action]
-getTimedActions = reverse . getActions
+getTimedActions = map reverseCallback . reverse . getActions
+  where
+    reverseCallback ::
+         Either An.Callback An.Action -> Either An.Callback An.Action
+    reverseCallback (Right action) = Right action
+    reverseCallback (Left An.Callback {..}) =
+      Left $ An.Callback callbackDescription (reverse callbackActions)
 
 -- For mockData
 initMockDataFor :: Typeable a => T.Text -> [a] -> Test.TestT ()
@@ -52,6 +58,7 @@ initMockDataFor actionName samples = do
       An.TestState testState $
       Map.insert actionName (Sample.makeSamples samples) mockData
 
+-- TODO use throw instead of error ?
 returnFor :: (Typeable a) => T.Text -> Test.TestT a
 returnFor actionName =
   fromMaybe throwSampleTypeError . Sample.getSample <$> state takeout

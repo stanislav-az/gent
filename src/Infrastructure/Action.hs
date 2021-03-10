@@ -29,14 +29,22 @@ packCallback actionName actionArgs callbackActions =
   Left $ makeCallback actionName actionArgs callbackActions
 
 volumeTestState :: TestState -> [Either Callback Action]
-volumeTestState TestState {..} = foldr getActions [] testState
+volumeTestState TestState {..} = snd $ foldr getActions (Nothing, []) testState
   where
-  getActions :: SumOfThree ([Action] -> Callback) Action CallbackYeild -> [Either Callback Action] -> [Either Callback Action]
-  getActions (Lft mkCallback) = error "not implemented"
-    -- getActions :: Either Callback Action -> [Action] -> [Action]
-    -- getActions (Left Callback {..}) previous =
-    --   callbackDescription : callbackActions <> previous
-    -- getActions (Right action) previous = action : previous
+    getActions ::
+         SumOfThree ([Action] -> Callback) Action CallbackYeild
+      -> (Maybe Callback, [Either Callback Action])
+      -> (Maybe Callback, [Either Callback Action])
+    getActions (Lft mkCallback) (_, previous) = (Just $ mkCallback [], previous)
+    getActions (Rgt CallbackYeild) (Just callback, previous) =
+      (Nothing, Left callback : previous)
+    getActions (Mid action) (Just callback, previous) =
+      (Just $ insertAction action callback, previous)
+    getActions (Mid action) (Nothing, previous) =
+      (Nothing, Right action : previous)
+    insertAction :: Action -> Callback -> Callback
+    insertAction an Callback {..} =
+      Callback callbackDescription (an : callbackActions)
 
 data Callback = Callback
   { callbackDescription :: Action

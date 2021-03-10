@@ -87,15 +87,15 @@ testHandler =
            , Test.packCallback
                "fork"
                []
-               [ Test.Action "setCurrentCounter" [Test.ti @Integer 1]
-               , Test.Action "setCurrentCounter" [Test.ti @Integer 6]
+               [ Test.Action "setCurrentCounter" [Test.ti @Integer 6]
+               , Test.Action "setCurrentCounter" [Test.ti @Integer 1]
                ]
            , Test.packAction "withDependency" [Test.ti @Int 9]
            , Test.packCallback
                "withCallback"
                [Test.ti @Int 77]
-               [ Test.Action "setCurrentCounter" [Test.ti @Integer 7]
+               [ Test.Action "setCurrentCounter" [Test.ti @Integer 66]
                , Test.Action "whatsMyName" [Test.ti @Double 38.5, Test.ti 'u']
-               , Test.Action "setCurrentCounter" [Test.ti @Integer 66]
+               , Test.Action "setCurrentCounter" [Test.ti @Integer 7]
                ]
            ]
