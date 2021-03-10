@@ -1,3 +1,5 @@
+{-# LANGUAGE BangPatterns #-}
+
 module Infrastructure.Recording where
 
 import Control.Monad.State (MonadState(get, state), modify')
@@ -53,9 +55,9 @@ returnFor actionName =
   fromMaybe throwSampleTypeError . Sample.getSample <$> state takeout
   where
     takeout An.TestState {..} =
-      let thisActionData =
+      let !thisActionData =
             fromMaybe throwNotFound $ Map.lookup actionName mockData
-          (x, rest) = fromMaybe throwNotSufficient $ uncons thisActionData
+          !(!x, !rest) = fromMaybe throwNotSufficient $ uncons thisActionData
        in (x, An.TestState testState $ Map.insert actionName rest mockData)
     throwNotFound = error $ "Mock data for " <> show actionName <> " not found."
     throwNotSufficient =

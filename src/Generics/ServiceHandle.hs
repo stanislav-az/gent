@@ -35,7 +35,7 @@ mockServiceHandle =
     , setCurrentCounter =
         \i -> do
           Test.addAction "setCurrentCounter" [Test.TestableItem i]
-          Test.initMockDataFor "setCurrentCounter" $ replicate 0 ()
+          Test.initMockDataFor "setCurrentCounter" $ replicate 1 ()
           Test.returnFor "setCurrentCounter"
     , fork =
         \ma -> do
