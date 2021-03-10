@@ -14,7 +14,7 @@ import qualified Infrastructure.Sample as Sample
 
 data TestState = TestState
   { testState :: [Either Callback Action]
-  , mockData :: Map.Map T.Text Sample.MockData
+  , mockData :: Map.Map T.Text [Sample.Sample]
   }
 
 emptyTestState :: TestState

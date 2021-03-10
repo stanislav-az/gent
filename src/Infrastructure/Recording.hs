@@ -1,11 +1,12 @@
 module Infrastructure.Recording where
 
-import Control.Monad.State (MonadState(state), modify)
-import Data.List
+import Control.Monad.State (MonadState(get, state), modify)
+import Data.List (uncons)
 import qualified Data.Map as Map
 import Data.Maybe (fromMaybe)
 import qualified Data.Text as T
 import Data.Typeable (Typeable)
+import Ext.Control.Monad (inaction)
 import qualified Infrastructure.Action as An
 import qualified Infrastructure.Sample as Sample
 import qualified Infrastructure.TestT as Test
@@ -39,7 +40,9 @@ getOnlyActions = An.flattenTestState . snd
 
 -- For mockData
 initMockDataFor :: Typeable a => T.Text -> [a] -> Test.TestT ()
-initMockDataFor actionName samples = modify initiate
+initMockDataFor actionName samples = do
+  An.TestState {..} <- get
+  maybe (modify initiate) inaction $ Map.lookup actionName mockData
   where
     initiate An.TestState {..} =
       An.TestState testState $

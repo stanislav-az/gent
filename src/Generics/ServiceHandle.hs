@@ -35,7 +35,8 @@ mockServiceHandle =
     , setCurrentCounter =
         \i -> do
           Test.addAction "setCurrentCounter" [Test.TestableItem i]
-          pure ()
+          Test.initMockDataFor "setCurrentCounter" $ replicate 0 ()
+          Test.returnFor "setCurrentCounter"
     , fork =
         \ma -> do
           let forkedActions = Test.getOnlyActions $ Test.runTest ma

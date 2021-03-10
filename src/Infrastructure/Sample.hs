@@ -4,11 +4,6 @@ module Infrastructure.Sample where
 
 import Data.Typeable (Typeable, cast)
 
-data MockData = MockData
-  { samples :: [Sample]
-  , isInitiated :: Bool
-  }
-
 data Sample =
   forall a. Typeable a =>
             Sample a
