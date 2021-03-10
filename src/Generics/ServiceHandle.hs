@@ -27,39 +27,24 @@ mockServiceHandle :: ServiceHandle Test.TestT
 mockServiceHandle =
   ServiceHandle
     { whatsMyName =
-        \d c -> do
-          Test.addAction
+        \d c ->
+          Test.mockAction
             "whatsMyName"
             [Test.TestableItem d, Test.TestableItem c]
-          Test.initMockDataFor "whatsMyName" ["Mr. White" :: T.Text, "White"]
-          Test.returnFor "whatsMyName"
+            ["Mr. White" :: T.Text, "White"]
     , setCurrentCounter =
-        \i -> do
-          Test.addAction "setCurrentCounter" [Test.TestableItem i]
-          Test.initMockDataFor "setCurrentCounter" $ replicate 5 ()
-          Test.returnFor "setCurrentCounter"
-    , fork =
-        \ma -> do
-          Test.initCallback "fork" []
-          ma
-          Test.yeildCallback
-          Test.initMockDataFor "fork" [()]
-          Test.returnFor "fork"
+        \i ->
+          Test.mockAction "setCurrentCounter" [Test.TestableItem i] $
+          replicate 5 ()
+    , fork = \ma -> Test.mockCallback "fork" ma [] [()]
     , function = listToMaybe -- Pure functions are not tested
     , constant = "asdf" -- Pure values are not tested
     , withDependency =
-        \i _f -> do
-          Test.addAction "withDependency" [Test.TestableItem i]
-          Test.initMockDataFor "withDependency" [()]
-          Test.returnFor "withDependency"
+        \i _f -> Test.mockAction "withDependency" [Test.TestableItem i] [()]
     , withCallback =
         \i cb -> do
           let ma = cb "mock"
-          Test.initCallback "withCallback" [Test.TestableItem i]
-          ma
-          Test.yeildCallback
-          Test.initMockDataFor "withCallback" [()]
-          Test.returnFor "withCallback"
+          Test.mockCallback "withCallback" ma [Test.TestableItem i] [()]
     }
 
 handler :: Monad m => ServiceHandle m -> m T.Text

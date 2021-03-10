@@ -73,3 +73,29 @@ returnFor actionName =
       error $ "Not sufficient mock data for " <> show actionName
     throwSampleTypeError =
       error $ "Could not cast sample for " <> show actionName
+
+-- For using in mocks
+mockAction ::
+     (Typeable a, Typeable b)
+  => T.Text
+  -> [An.TestableItem]
+  -> [a]
+  -> Test.TestT b
+mockAction actionName args samples = do
+  addAction actionName args
+  initMockDataFor actionName samples
+  returnFor actionName
+
+mockCallback ::
+     (Typeable a, Typeable b)
+  => T.Text
+  -> Test.TestT r
+  -> [An.TestableItem]
+  -> [a]
+  -> Test.TestT b
+mockCallback callbackName callback args samples = do
+  initCallback callbackName args
+  callback
+  yeildCallback
+  initMockDataFor callbackName samples
+  returnFor callbackName
