@@ -10,6 +10,7 @@ import           Control.Monad.Identity (Identity (runIdentity))
 import           Control.Monad.State (MonadPlus, MonadState, StateT (..))
 import qualified Infrastructure.Action as An
 
+-- TODO rename to recorder?
 -- TODO use Control.Monad.Trans.Free.Church to move all needed instances to
 -- underlying monad, not test transformer: TestT m a would have only Functor, Applicative, Monad
 -- the most used case would be Test a = TestT Catch a

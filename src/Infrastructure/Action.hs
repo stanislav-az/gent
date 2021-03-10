@@ -10,7 +10,7 @@ module Infrastructure.Action where
 import qualified Data.Map.Strict as Map
 import qualified Data.Text as T
 import qualified Data.Typeable as Type
-import Ext.Data.Either
+import Ext.Data.Either (SumOfThree(..))
 import qualified Infrastructure.Sample as Sample
 
 data TestState = TestState

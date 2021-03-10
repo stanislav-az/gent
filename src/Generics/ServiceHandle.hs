@@ -9,6 +9,7 @@ import qualified Infrastructure.Action as Test
 import qualified Infrastructure.Recording as Test
 import qualified Infrastructure.TestT as Test
 
+-- TODO folder structure
 generateMockImplementation :: forall handle. handle Test.TestT
 generateMockImplementation = undefined
 
@@ -42,20 +43,23 @@ mockServiceHandle =
           Test.initCallback "fork" []
           ma
           Test.yeildCallback
-          pure ()
-    , function = listToMaybe
-    , constant = "asdf"
+          Test.initMockDataFor "fork" [()]
+          Test.returnFor "fork"
+    , function = listToMaybe -- Pure functions are not tested
+    , constant = "asdf" -- Pure values are not tested
     , withDependency =
         \i _f -> do
           Test.addAction "withDependency" [Test.TestableItem i]
-          pure ()
+          Test.initMockDataFor "withDependency" [()]
+          Test.returnFor "withDependency"
     , withCallback =
         \i cb -> do
           let ma = cb "mock"
           Test.initCallback "withCallback" [Test.TestableItem i]
           ma
           Test.yeildCallback
-          pure ()
+          Test.initMockDataFor "withCallback" [()]
+          Test.returnFor "withCallback"
     }
 
 handler :: Monad m => ServiceHandle m -> m T.Text
