@@ -15,8 +15,10 @@ module Core.Recorder.Recording
   , mockCallbackAlwaysReturn
   ) where
 
-import Control.Monad.State (MonadState(get, state), modify')
+import Control.Monad.Catch (MonadThrow(throwM))
+import Control.Monad.State (MonadState(get, put, state), modify')
 import qualified Core.Domain as An
+import Core.Recorder.Exception (RecorderException(..))
 import qualified Core.Recorder.Recorder as Test
 import Data.List (uncons)
 import qualified Data.Map.Strict as Map
@@ -70,21 +72,20 @@ initMockDataFor actionName samples = do
       An.TestState testState $
       Map.insert actionName (An.makeSamples samples) mockData
 
--- TODO use throw instead of error ?
 returnFor :: (Typeable a) => T.Text -> Test.Recorder a
-returnFor actionName =
-  fromMaybe throwSampleTypeError . An.getSample <$> state takeout
+returnFor actionName = do
+  An.TestState {..} <- get
+  !thisActionData <- maybe throwNotFound pure $ Map.lookup actionName mockData
+  (!x, !rest) <- maybe throwNotSufficient pure $ uncons thisActionData
+  put $ An.TestState testState $ Map.insert actionName rest mockData
+  maybe throwSampleTypeError pure $ An.getSample x
   where
-    takeout An.TestState {..} =
-      let !thisActionData =
-            fromMaybe throwNotFound $ Map.lookup actionName mockData
-          !(!x, !rest) = fromMaybe throwNotSufficient $ uncons thisActionData
-       in (x, An.TestState testState $ Map.insert actionName rest mockData)
-    throwNotFound = error $ "Mock data for " <> show actionName <> " not found."
-    throwNotSufficient =
-      error $ "Not sufficient mock data for " <> show actionName
-    throwSampleTypeError =
-      error $ "Could not cast sample for " <> show actionName
+    throwNotFound :: Test.Recorder r
+    throwNotFound = throwM $ MockDataNotFound actionName
+    throwNotSufficient :: Test.Recorder r
+    throwNotSufficient = throwM $ MockDataNotSufficient actionName
+    throwSampleTypeError :: Test.Recorder r
+    throwSampleTypeError = throwM $ SampleTypeError actionName
 
 -- For using in mocks
 mockAction ::
