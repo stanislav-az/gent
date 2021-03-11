@@ -1,3 +1,6 @@
+{-# LANGUAGE DerivingStrategies #-}
+{-# LANGUAGE DeriveAnyClass #-}
+
 module Core.Recorder.Exception
   ( RecorderException(..)
   ) where
@@ -9,10 +12,11 @@ data RecorderException
   = MockDataNotFound { getActionName :: T.Text }
   | MockDataNotSufficient { getActionName :: T.Text }
   | SampleTypeError { getActionName :: T.Text }
-  deriving (Show, Eq)
+  deriving stock Eq
+  deriving anyclass Exception
 
-instance Exception RecorderException where
-  displayException e =
+instance Show RecorderException where
+  show e =
     "Exception with action " <> T.unpack (getActionName e) <> " : " <>
     case e of
       MockDataNotFound _ -> "Mock data not found."
