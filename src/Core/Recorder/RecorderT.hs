@@ -4,3 +4,4 @@ module Core.Recorder.RecorderT where
 -- underlying monad, not test transformer: RecorderT m a would have only Functor, Applicative, Monad
 -- the most used case would be Test a = RecorderT Catch a
 -- нужно делать все инстансы mtl: HasInstance m => instance HasInstance (RecorderT m)
+-- Another possibility: to pack in all needed inside newtype: RecorderT m a = RecorderT (m (Recorder a))

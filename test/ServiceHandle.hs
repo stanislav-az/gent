@@ -9,6 +9,7 @@ import qualified Core.Domain as Test
 import qualified Core.Recorder.Recording as Test
 import qualified Core.Recorder.Recorder as Test
 
+-- TODO add test with mtl-style typeclass for logging
 -- % stack repl --no-load
 -- λ> :l test/ServiceHandle.hs
 data ServiceHandle m = ServiceHandle
