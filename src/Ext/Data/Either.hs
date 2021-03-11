@@ -1,11 +1,13 @@
 {-# LANGUAGE DeriveDataTypeable #-}
-{-# LANGUAGE DeriveGeneric      #-}
-{-# LANGUAGE DeriveTraversable  #-}
+{-# LANGUAGE DeriveGeneric #-}
+{-# LANGUAGE DeriveTraversable #-}
 
-module Ext.Data.Either where
+module Ext.Data.Either
+  ( SumOfThree(..)
+  ) where
 
-import           Data.Data (Data, Typeable)
-import           GHC.Generics (Generic)
+import Data.Data (Data, Typeable)
+import GHC.Generics (Generic)
 
 data SumOfThree l m r
   = Lft l

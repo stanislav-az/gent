@@ -63,6 +63,7 @@ handler ServiceHandle {..} = do
       setCurrentCounter 7
       pure 'p'
 
+-- TODO add this test to suite
 testHandler :: IO ()
 testHandler =
   let r = Test.runTest $ handler mockServiceHandle
