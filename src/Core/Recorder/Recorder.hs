@@ -1,19 +1,24 @@
 {-# LANGUAGE GeneralizedNewtypeDeriving #-}
 
-module Core.Recorder.Recorder where
+module Core.Recorder.Recorder
+  ( Recorder(..)
+  , runTest
+  , runTestSafe
+  ) where
 
-import           Control.Applicative (Alternative)
-import           Control.Monad.Catch.Pure (Catch, CatchT (runCatchT),
-                                           MonadCatch, MonadMask, MonadThrow,
-                                           SomeException)
-import           Control.Monad.Identity (Identity (runIdentity))
-import           Control.Monad.State (MonadPlus, MonadState, StateT (..))
-import qualified Core.Domain.Action as An
+import Control.Applicative (Alternative)
+import Control.Monad.Catch.Pure
+  ( Catch
+  , CatchT(runCatchT)
+  , MonadCatch
+  , MonadMask
+  , MonadThrow
+  , SomeException
+  )
+import Control.Monad.Identity (Identity(runIdentity))
+import Control.Monad.State (MonadPlus, MonadState, StateT(..))
+import qualified Core.Domain as An
 
--- TODO use Control.Monad.Trans.Free.Church to move all needed instances to
--- underlying monad, not test transformer: Recorder m a would have only Functor, Applicative, Monad
--- the most used case would be Test a = Recorder Catch a
--- нужно делать все инстансы mtl: HasInstance m => instance HasInstance (Recorder m)
 newtype Recorder a = Recorder
   { runRecorder :: StateT An.TestState Catch a
   } deriving ( Functor
@@ -29,7 +34,8 @@ newtype Recorder a = Recorder
              )
 
 runTestSafe :: Recorder a -> Either SomeException (a, An.TestState)
-runTestSafe = runIdentity . runCatchT . (`runStateT` An.emptyTestState) . runRecorder
+runTestSafe =
+  runIdentity . runCatchT . (`runStateT` An.emptyTestState) . runRecorder
 
 runTest :: Recorder a -> (a, An.TestState)
 runTest test =

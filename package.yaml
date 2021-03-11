@@ -29,6 +29,7 @@ dependencies:
 default-extensions:
 - RecordWildCards
 - OverloadedStrings
+- ScopedTypeVariables
 
 library:
   source-dirs: src

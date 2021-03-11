@@ -5,10 +5,12 @@ module ServiceHandle where
 
 import Data.Maybe (listToMaybe)
 import qualified Data.Text as T
-import qualified Core.Domain.Action as Test
+import qualified Core.Domain as Test
 import qualified Core.Recorder.Recording as Test
 import qualified Core.Recorder.Recorder as Test
 
+-- % stack repl --no-load
+-- λ> :l test/ServiceHandle.hs
 data ServiceHandle m = ServiceHandle
   { whatsMyName :: Double -> Char -> m T.Text
   , setCurrentCounter :: Integer -> m ()

@@ -1,6 +1,10 @@
 {-# LANGUAGE ExistentialQuantification #-}
 
-module Core.Domain.Sample where
+module Core.Domain.Sample
+  ( Sample(..)
+  , makeSamples
+  , getSample
+  ) where
 
 import Data.Typeable (Typeable, cast)
 

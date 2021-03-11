@@ -1,18 +1,28 @@
 {-# LANGUAGE BangPatterns #-}
 
-module Core.Recorder.Recording where
+module Core.Recorder.Recording
+  ( addAction
+  , initCallback
+  , yeildCallback
+  , getResult
+  , getActions
+  , getTimedActions
+  , initMockDataFor
+  , returnFor
+  , mockAction
+  , mockCallback
+  ) where
 
 import Control.Monad.State (MonadState(get, state), modify')
+import qualified Core.Domain as An
+import qualified Core.Recorder.Recorder as Test
 import Data.List (uncons)
 import qualified Data.Map.Strict as Map
 import Data.Maybe (fromMaybe)
 import qualified Data.Text as T
 import Data.Typeable (Typeable)
 import Ext.Control.Monad (inaction)
-import Ext.Data.Either
-import qualified Core.Domain.Action as An
-import qualified Core.Domain.Sample as Sample
-import qualified Core.Recorder.Recorder as Test
+import Ext.Data.Either (SumOfThree(Lft, Mid, Rgt))
 
 -- For testState
 addAction :: T.Text -> [An.TestableItem] -> Test.Recorder ()
@@ -56,12 +66,12 @@ initMockDataFor actionName samples = do
   where
     initiate An.TestState {..} =
       An.TestState testState $
-      Map.insert actionName (Sample.makeSamples samples) mockData
+      Map.insert actionName (An.makeSamples samples) mockData
 
 -- TODO use throw instead of error ?
 returnFor :: (Typeable a) => T.Text -> Test.Recorder a
 returnFor actionName =
-  fromMaybe throwSampleTypeError . Sample.getSample <$> state takeout
+  fromMaybe throwSampleTypeError . An.getSample <$> state takeout
   where
     takeout An.TestState {..} =
       let !thisActionData =
@@ -86,6 +96,7 @@ mockAction actionName args samples = do
   initMockDataFor actionName samples
   returnFor actionName
 
+-- TODO add not counted returns actions
 mockCallback ::
      (Typeable a, Typeable b)
   => T.Text
