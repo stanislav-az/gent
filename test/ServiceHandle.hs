@@ -9,7 +9,14 @@ import qualified Core.Domain as Test
 import qualified Core.Recorder.Recording as Test
 import qualified Core.Recorder.Recorder as Test
 
--- TODO add test with mtl-style typeclass for logging
+class Monad m => MonadLogger m where
+  logInfo :: T.Text -> m ()
+  logError :: T.Text -> m ()
+
+instance MonadLogger Test.Recorder where
+  logInfo t = Test.mockActionAlwaysReturn "logInfo" [Test.ti t] ()
+  logError t = Test.mockActionAlwaysReturn "logError" [Test.ti t] ()
+
 -- % stack repl --no-load
 -- λ> :l test/ServiceHandle.hs
 data ServiceHandle m = ServiceHandle
@@ -46,13 +53,15 @@ mockServiceHandle =
           Test.mockCallback "withCallback" ma [Test.TestableItem i] [()]
     }
 
-handler :: Monad m => ServiceHandle m -> m T.Text
+handler :: MonadLogger m => ServiceHandle m -> m T.Text
 handler ServiceHandle {..} = do
+  logInfo "starting handler"
   name <- whatsMyName 3.5 'u'
   setCurrentCounter 6
   fork subHandler
   withDependency 9 (const 'i')
   withCallback 77 handlerCallback
+  logInfo "successful execution of handler"
   pure name
   where
     subHandler = do
@@ -61,6 +70,7 @@ handler ServiceHandle {..} = do
     handlerCallback _ = do
       setCurrentCounter 66
       name <- whatsMyName 38.5 'u'
+      logError $ "Name was: " <> name
       setCurrentCounter 7
       pure 'p'
 
@@ -70,8 +80,10 @@ testHandler =
   let r = Test.runTest $ handler mockServiceHandle
    in do print $ Test.getResult r == "Mr. White"
          print $
-           Test.getTimedActions r ==
-           [ Test.packAction "whatsMyName" [Test.ti @Double 3.5, Test.ti 'u']
+           Test.getTimedActions r
+           ==
+           [ Test.packAction "logInfo" [Test.ti @T.Text "starting handler"]
+           , Test.packAction "whatsMyName" [Test.ti @Double 3.5, Test.ti 'u']
            , Test.packAction "setCurrentCounter" [Test.ti @Integer 6]
            , Test.packCallback
                "fork"
@@ -85,6 +97,8 @@ testHandler =
                [Test.ti @Int 77]
                [ Test.Action "setCurrentCounter" [Test.ti @Integer 66]
                , Test.Action "whatsMyName" [Test.ti @Double 38.5, Test.ti 'u']
+               , Test.Action "logError" [Test.ti @T.Text "Name was: White"]
                , Test.Action "setCurrentCounter" [Test.ti @Integer 7]
                ]
+           , Test.packAction "logInfo" [Test.ti @T.Text "successful execution of handler"]
            ]
