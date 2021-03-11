@@ -7,10 +7,10 @@ import Data.Maybe (listToMaybe)
 import qualified Data.Text as T
 import qualified Infrastructure.Action as Test
 import qualified Infrastructure.Recording as Test
-import qualified Infrastructure.TestT as Test
+import qualified Infrastructure.Recorder as Test
 
 -- TODO folder structure
-generateMockImplementation :: forall handle. handle Test.TestT
+generateMockImplementation :: forall handle. handle Test.Recorder
 generateMockImplementation = undefined
 
 data ServiceHandle m = ServiceHandle
@@ -23,7 +23,7 @@ data ServiceHandle m = ServiceHandle
   , withCallback :: Int -> (T.Text -> m Char) -> m ()
   }
 
-mockServiceHandle :: ServiceHandle Test.TestT
+mockServiceHandle :: ServiceHandle Test.Recorder
 mockServiceHandle =
   ServiceHandle
     { whatsMyName =

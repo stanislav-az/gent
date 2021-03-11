@@ -12,22 +12,22 @@ import Ext.Control.Monad (inaction)
 import Ext.Data.Either
 import qualified Infrastructure.Action as An
 import qualified Infrastructure.Sample as Sample
-import qualified Infrastructure.TestT as Test
+import qualified Infrastructure.Recorder as Test
 
 -- For testState
-addAction :: T.Text -> [An.TestableItem] -> Test.TestT ()
+addAction :: T.Text -> [An.TestableItem] -> Test.Recorder ()
 addAction actionName actionArgs = modify' add
   where
     action = An.Action {..}
     add An.TestState {..} = An.TestState (Mid action : testState) mockData
 
-initCallback :: T.Text -> [An.TestableItem] -> Test.TestT ()
+initCallback :: T.Text -> [An.TestableItem] -> Test.Recorder ()
 initCallback actionName actionArgs = modify' add
   where
     callback = An.Callback An.Action {..}
     add An.TestState {..} = An.TestState (Lft callback : testState) mockData
 
-yeildCallback :: Test.TestT ()
+yeildCallback :: Test.Recorder ()
 yeildCallback = modify' add
   where
     add An.TestState {..} =
@@ -49,7 +49,7 @@ getTimedActions = map reverseCallback . reverse . getActions
       Left $ An.Callback callbackDescription (reverse callbackActions)
 
 -- For mockData
-initMockDataFor :: Typeable a => T.Text -> [a] -> Test.TestT ()
+initMockDataFor :: Typeable a => T.Text -> [a] -> Test.Recorder ()
 initMockDataFor actionName samples = do
   An.TestState {..} <- get
   maybe (modify' initiate) inaction $ Map.lookup actionName mockData
@@ -59,7 +59,7 @@ initMockDataFor actionName samples = do
       Map.insert actionName (Sample.makeSamples samples) mockData
 
 -- TODO use throw instead of error ?
-returnFor :: (Typeable a) => T.Text -> Test.TestT a
+returnFor :: (Typeable a) => T.Text -> Test.Recorder a
 returnFor actionName =
   fromMaybe throwSampleTypeError . Sample.getSample <$> state takeout
   where
@@ -80,7 +80,7 @@ mockAction ::
   => T.Text
   -> [An.TestableItem]
   -> [a]
-  -> Test.TestT b
+  -> Test.Recorder b
 mockAction actionName args samples = do
   addAction actionName args
   initMockDataFor actionName samples
@@ -89,10 +89,10 @@ mockAction actionName args samples = do
 mockCallback ::
      (Typeable a, Typeable b)
   => T.Text
-  -> Test.TestT r
+  -> Test.Recorder r
   -> [An.TestableItem]
   -> [a]
-  -> Test.TestT b
+  -> Test.Recorder b
 mockCallback callbackName callback args samples = do
   initCallback callbackName args
   callback

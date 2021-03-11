@@ -1,6 +1,6 @@
 {-# LANGUAGE GeneralizedNewtypeDeriving #-}
 
-module Infrastructure.TestT where
+module Infrastructure.Recorder where
 
 import           Control.Applicative (Alternative)
 import           Control.Monad.Catch.Pure (Catch, CatchT (runCatchT),
@@ -12,11 +12,11 @@ import qualified Infrastructure.Action as An
 
 -- TODO rename to recorder?
 -- TODO use Control.Monad.Trans.Free.Church to move all needed instances to
--- underlying monad, not test transformer: TestT m a would have only Functor, Applicative, Monad
--- the most used case would be Test a = TestT Catch a
--- нужно делать все инстансы mtl: HasInstance m => instance HasInstance (TestT m)
-newtype TestT a = TestT
-  { runTestT :: StateT An.TestState Catch a
+-- underlying monad, not test transformer: Recorder m a would have only Functor, Applicative, Monad
+-- the most used case would be Test a = Recorder Catch a
+-- нужно делать все инстансы mtl: HasInstance m => instance HasInstance (Recorder m)
+newtype Recorder a = Recorder
+  { runRecorder :: StateT An.TestState Catch a
   } deriving ( Functor
              , Applicative
              , Monad
@@ -29,10 +29,10 @@ newtype TestT a = TestT
              , MonadPlus
              )
 
-runTestSafe :: TestT a -> Either SomeException (a, An.TestState)
-runTestSafe = runIdentity . runCatchT . (`runStateT` An.emptyTestState) . runTestT
+runTestSafe :: Recorder a -> Either SomeException (a, An.TestState)
+runTestSafe = runIdentity . runCatchT . (`runStateT` An.emptyTestState) . runRecorder
 
-runTest :: TestT a -> (a, An.TestState)
+runTest :: Recorder a -> (a, An.TestState)
 runTest test =
   either (error . ("Uncaught exception during runTest: " <>) . show) id $
   runTestSafe test
