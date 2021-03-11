@@ -1,15 +1,20 @@
 {-# LANGUAGE ScopedTypeVariables #-}
 {-# LANGUAGE TypeApplications #-}
 
-module ServiceHandle where
+module ServiceHandle
+  ( handlerSpec
+  ) where
 
+import qualified Core.Domain as Test
+import qualified Core.Recorder.Recorder as Test
+import qualified Core.Recorder.Recording as Test
 import Data.Maybe (listToMaybe)
 import qualified Data.Text as T
-import qualified Core.Domain as Test
-import qualified Core.Recorder.Recording as Test
-import qualified Core.Recorder.Recorder as Test
+import Test.Hspec (Spec, describe, it, shouldBe)
 
-class Monad m => MonadLogger m where
+class Monad m =>
+      MonadLogger m
+  where
   logInfo :: T.Text -> m ()
   logError :: T.Text -> m ()
 
@@ -17,8 +22,6 @@ instance MonadLogger Test.Recorder where
   logInfo t = Test.mockActionAlwaysReturn "logInfo" [Test.ti t] ()
   logError t = Test.mockActionAlwaysReturn "logError" [Test.ti t] ()
 
--- % stack repl --no-load
--- λ> :l test/ServiceHandle.hs
 data ServiceHandle m = ServiceHandle
   { whatsMyName :: Double -> Char -> m T.Text
   , setCurrentCounter :: Integer -> m ()
@@ -74,31 +77,32 @@ handler ServiceHandle {..} = do
       setCurrentCounter 7
       pure 'p'
 
--- TODO add this test to suite
-testHandler :: IO ()
-testHandler =
-  let r = Test.runTest $ handler mockServiceHandle
-   in do print $ Test.getResult r == "Mr. White"
-         print $
-           Test.getTimedActions r
-           ==
-           [ Test.packAction "logInfo" [Test.ti @T.Text "starting handler"]
-           , Test.packAction "whatsMyName" [Test.ti @Double 3.5, Test.ti 'u']
-           , Test.packAction "setCurrentCounter" [Test.ti @Integer 6]
-           , Test.packCallback
-               "fork"
-               []
-               [ Test.Action "setCurrentCounter" [Test.ti @Integer 6]
-               , Test.Action "setCurrentCounter" [Test.ti @Integer 1]
-               ]
-           , Test.packAction "withDependency" [Test.ti @Int 9]
-           , Test.packCallback
-               "withCallback"
-               [Test.ti @Int 77]
-               [ Test.Action "setCurrentCounter" [Test.ti @Integer 66]
-               , Test.Action "whatsMyName" [Test.ti @Double 38.5, Test.ti 'u']
-               , Test.Action "logError" [Test.ti @T.Text "Name was: White"]
-               , Test.Action "setCurrentCounter" [Test.ti @Integer 7]
-               ]
-           , Test.packAction "logInfo" [Test.ti @T.Text "successful execution of handler"]
-           ]
+handlerSpec :: Spec
+handlerSpec =
+  describe "handler" $ do
+    it "Should execute successfully" $ do
+      let r = Test.runTest $ handler mockServiceHandle
+      Test.getResult r `shouldBe` "Mr. White"
+      Test.getTimedActions r `shouldBe`
+        [ Test.packAction "logInfo" [Test.ti @T.Text "starting handler"]
+        , Test.packAction "whatsMyName" [Test.ti @Double 3.5, Test.ti 'u']
+        , Test.packAction "setCurrentCounter" [Test.ti @Integer 6]
+        , Test.packCallback
+            "fork"
+            []
+            [ Test.Action "setCurrentCounter" [Test.ti @Integer 6]
+            , Test.Action "setCurrentCounter" [Test.ti @Integer 1]
+            ]
+        , Test.packAction "withDependency" [Test.ti @Int 9]
+        , Test.packCallback
+            "withCallback"
+            [Test.ti @Int 77]
+            [ Test.Action "setCurrentCounter" [Test.ti @Integer 66]
+            , Test.Action "whatsMyName" [Test.ti @Double 38.5, Test.ti 'u']
+            , Test.Action "logError" [Test.ti @T.Text "Name was: White"]
+            , Test.Action "setCurrentCounter" [Test.ti @Integer 7]
+            ]
+        , Test.packAction
+            "logInfo"
+            [Test.ti @T.Text "successful execution of handler"]
+        ]

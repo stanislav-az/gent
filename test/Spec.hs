@@ -1,2 +1,5 @@
+import ServiceHandle (handlerSpec)
+import Test.Hspec (hspec)
+
 main :: IO ()
-main = putStrLn "Test suite not yet implemented"
+main = hspec handlerSpec
