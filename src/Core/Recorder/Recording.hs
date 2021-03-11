@@ -11,6 +11,8 @@ module Core.Recorder.Recording
   , returnFor
   , mockAction
   , mockCallback
+  , mockActionAlwaysReturn
+  , mockCallbackAlwaysReturn
   ) where
 
 import Control.Monad.State (MonadState(get, state), modify')
@@ -96,7 +98,11 @@ mockAction actionName args samples = do
   initMockDataFor actionName samples
   returnFor actionName
 
--- TODO add not counted returns actions
+mockActionAlwaysReturn :: T.Text -> [An.TestableItem] -> a -> Test.Recorder a
+mockActionAlwaysReturn actionName args sample = do
+  addAction actionName args
+  pure sample
+
 mockCallback ::
      (Typeable a, Typeable b)
   => T.Text
@@ -110,3 +116,11 @@ mockCallback callbackName callback args samples = do
   yeildCallback
   initMockDataFor callbackName samples
   returnFor callbackName
+
+mockCallbackAlwaysReturn ::
+     T.Text -> Test.Recorder r -> [An.TestableItem] -> a -> Test.Recorder a
+mockCallbackAlwaysReturn callbackName callback args sample = do
+  initCallback callbackName args
+  callback
+  yeildCallback
+  pure sample

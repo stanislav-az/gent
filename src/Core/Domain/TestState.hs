@@ -41,6 +41,7 @@ volumeTestState TestState {..} = snd $ foldr getActions (Nothing, []) testState
       -> (Maybe Callback, [Either Callback Action])
       -> (Maybe Callback, [Either Callback Action])
     getActions (Lft mkCallback) (_, previous) = (Just $ mkCallback [], previous)
+    getActions (Rgt CallbackYeild) (Nothing, previous) = (Nothing, previous)
     getActions (Rgt CallbackYeild) (Just callback, previous) =
       (Nothing, Left callback : previous)
     getActions (Mid action) (Just callback, previous) =
