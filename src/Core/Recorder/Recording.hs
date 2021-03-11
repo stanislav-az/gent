@@ -1,6 +1,6 @@
 {-# LANGUAGE BangPatterns #-}
 
-module Infrastructure.Recording where
+module Core.Recorder.Recording where
 
 import Control.Monad.State (MonadState(get, state), modify')
 import Data.List (uncons)
@@ -10,9 +10,9 @@ import qualified Data.Text as T
 import Data.Typeable (Typeable)
 import Ext.Control.Monad (inaction)
 import Ext.Data.Either
-import qualified Infrastructure.Action as An
-import qualified Infrastructure.Sample as Sample
-import qualified Infrastructure.Recorder as Test
+import qualified Core.Domain.Action as An
+import qualified Core.Domain.Sample as Sample
+import qualified Core.Recorder.Recorder as Test
 
 -- For testState
 addAction :: T.Text -> [An.TestableItem] -> Test.Recorder ()

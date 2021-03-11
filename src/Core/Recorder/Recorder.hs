@@ -1,6 +1,6 @@
 {-# LANGUAGE GeneralizedNewtypeDeriving #-}
 
-module Infrastructure.Recorder where
+module Core.Recorder.Recorder where
 
 import           Control.Applicative (Alternative)
 import           Control.Monad.Catch.Pure (Catch, CatchT (runCatchT),
@@ -8,9 +8,8 @@ import           Control.Monad.Catch.Pure (Catch, CatchT (runCatchT),
                                            SomeException)
 import           Control.Monad.Identity (Identity (runIdentity))
 import           Control.Monad.State (MonadPlus, MonadState, StateT (..))
-import qualified Infrastructure.Action as An
+import qualified Core.Domain.Action as An
 
--- TODO rename to recorder?
 -- TODO use Control.Monad.Trans.Free.Church to move all needed instances to
 -- underlying monad, not test transformer: Recorder m a would have only Functor, Applicative, Monad
 -- the most used case would be Test a = Recorder Catch a

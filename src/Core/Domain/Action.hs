@@ -5,13 +5,13 @@
 {-# LANGUAGE StandaloneDeriving #-}
 {-# LANGUAGE TypeApplications #-}
 
-module Infrastructure.Action where
+module Core.Domain.Action where
 
 import qualified Data.Map.Strict as Map
 import qualified Data.Text as T
 import qualified Data.Typeable as Type
 import Ext.Data.Either (SumOfThree(..))
-import qualified Infrastructure.Sample as Sample
+import qualified Core.Domain.Sample as Sample
 
 data TestState = TestState
   { testState :: [SumOfThree ([Action] -> Callback) Action CallbackYeild]

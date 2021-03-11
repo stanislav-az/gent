@@ -1,6 +1,6 @@
 {-# LANGUAGE ExistentialQuantification #-}
 
-module Infrastructure.Sample where
+module Core.Domain.Sample where
 
 import Data.Typeable (Typeable, cast)
 

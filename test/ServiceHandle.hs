@@ -1,17 +1,13 @@
 {-# LANGUAGE ScopedTypeVariables #-}
 {-# LANGUAGE TypeApplications #-}
 
-module Generics.ServiceHandle where
+module ServiceHandle where
 
 import Data.Maybe (listToMaybe)
 import qualified Data.Text as T
-import qualified Infrastructure.Action as Test
-import qualified Infrastructure.Recording as Test
-import qualified Infrastructure.Recorder as Test
-
--- TODO folder structure
-generateMockImplementation :: forall handle. handle Test.Recorder
-generateMockImplementation = undefined
+import qualified Core.Domain.Action as Test
+import qualified Core.Recorder.Recording as Test
+import qualified Core.Recorder.Recorder as Test
 
 data ServiceHandle m = ServiceHandle
   { whatsMyName :: Double -> Char -> m T.Text
