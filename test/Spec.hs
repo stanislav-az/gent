@@ -1,4 +1,4 @@
-import ServiceHandle (handlerSpec)
+import Example (handlerSpec)
 import Test.Hspec (hspec)
 
 main :: IO ()
